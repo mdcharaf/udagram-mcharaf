@@ -7,7 +7,8 @@ const router: Router = express.Router();
 router.get('/filteredimage', async (req: Request, res: Response) => {
   const imageUrl: string = req.query.image_url;
   try {
-    const filteredImageUrl = await filterImageFromURL(imageUrl);
+    const filteredImageUrl: string = await filterImageFromURL(imageUrl);
+
     res.status(200).sendFile(filteredImageUrl, async () => {
       await deleteLocalFiles([filteredImageUrl]);
     });
@@ -17,6 +18,4 @@ router.get('/filteredimage', async (req: Request, res: Response) => {
   }
 });
 
-
-const filterController = router;
-export default filterController;
+export default router;
