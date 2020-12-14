@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import bodyParser from 'body-parser';
-import fs from 'fs';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
 (async () => {
@@ -26,19 +25,11 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
   app.get('/filteredimage', async (req, res) => {
     var imageUrl = req.query.image_url;
-
-    // Verify url is of image type
-    if (!imageUrl || !(imageUrl.match(/\.(jpeg|jpg|gif|png)$/))) {
-      res.status(422).send({ error: 'Invalid Image Url' });
-    }
-
-    // Filter Image
     try {
       const filteredImageUrl = await filterImageFromURL(imageUrl);
-
-      let fileStream = fs.createReadStream(filteredImageUrl);
-      fileStream.on('end', async () => await deleteLocalFiles([filteredImageUrl]));
-      fileStream.pipe(res)
+      res.status(200).sendFile(filteredImageUrl, async () => {
+        await deleteLocalFiles([filteredImageUrl]);
+      });
     } catch (error) {
       console.error(error);
       res.status(422).send({ error: `Failed to filter image ${imageUrl}`})
